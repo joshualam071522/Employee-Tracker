@@ -88,14 +88,55 @@ const addDepartment = () => {
     });
 };
 
-addDepartment();
 
-
-
-
-
+const addRole = () => {
+    db.query('SELECT * FROM department', (err, departments) => {
+        if (err) {
+            console.log(err);
+        } else {
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'role',
+                    message: 'What is the name of the role?'
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'What is the salary of the role?'
+                },
+                {
+                    type: 'list',
+                    name: 'department',
+                    message: 'Which department does this role belong to?',
+                    choices: () => {
+                        const departmentArray = [];
+                        departments.forEach(({ name }) => {
+                            departmentArray.push(name);
+                        });
+                        return departmentArray;
+                        }
+                },
+            ]) .then((answer) => {
+                let departmentId;
+                departments.forEach((department) => {
+                    if (department.name === answer.department) {
+                        departmentId = department.id;
+                    }
+                });
+                db.query('INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)', [answer.role, answer.salary, departmentId], (err, res) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        console.log('Role added!');
+                        menu();
+                    }
+                });
+            });
+        }
+    })
+}
     
-
 function menu() {
     inquirer.prompt(select)
     .then((answers) => {
