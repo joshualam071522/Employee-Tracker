@@ -284,8 +284,63 @@ const updateEmployeeManager = async () => {
     }
 };
 
+const viewEmployeesByManager = async () => {
+    try {
+        const employees = await employeeQuery();
 
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'manager',
+                message: `Which manager's employees would you like to view?`,
+                choices: employees.map(employee => `${employee.first_name} ${employee.last_name}`)
+            }
+        ]);
 
+        const managerId = employees.find(employee => `${employee.first_name} ${employee.last_name}` === answers.manager).id;
+
+        db.query('SELECT first_name, last_name FROM employee WHERE manager_id = ?', managerId, (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\nDisplaying ${answers.manager}'s employees:\n`)
+                console.table(res);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+const viewEmployeesByDepartment = async () => {
+    try {
+        const departments = await departmentQuery();
+
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: `Which department's employees would you like to view?`,
+                choices: departments.map(department => department.name)
+            }
+        ]);
+
+        const departmentId = departments.find(department => department.name === answers.department).id;
+
+        db.query('SELECT first_name, last_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department on role.department_id = department.id WHERE role.department_id = ?', departmentId, (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\nDisplaying ${answers.department}'s employees:\n`)
+                console.table(res);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
     
 function menu() {
     inquirer.prompt(select)
