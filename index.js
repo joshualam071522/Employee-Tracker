@@ -101,6 +101,7 @@ const departmentQuery = () => {
     });
 };
 
+//* add validator for salary
 const addRole = async () => {
     try {
         const departments = await departmentQuery();
@@ -211,6 +212,78 @@ const employeeQuery = () => {
         });
     });
 };
+
+const updateEmployeeRole = async () => {
+    try {
+        const roles = await roleQuery();
+        const employees = await employeeQuery();
+
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: `Which employee's role would you like to update?`,
+                choices: employees.map(employee => `${employee.first_name} ${employee.last_name}`)
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: `What is the employee's new role?`,
+                choices: roles.map(role => role.title)
+            }
+        ]);
+
+        const roleId = roles.find(role => role.title === answers.role).id;
+        const employeeId = employees.find(employee => `${employee.first_name} ${employee.last_name}` === answers.employee).id;
+
+        db.query('UPDATE employee SET role_id = ? WHERE id = ?', [roleId, employeeId], (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\n ${answers.employee}'s role updated!\n\n Returning to main menu...\n`);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+const updateEmployeeManager = async () => {
+    try {
+        const employees = await employeeQuery();
+        
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: `Which employee's manager would you like to update?`,
+                choices: employees.map(employee => `${employee.first_name} ${employee.last_name}`)
+            },
+            {
+                type: 'list',
+                name: 'manager',
+                message: `Who is the employee's new manager?`,
+                choices: [...employees.map(employee => `${employee.first_name} ${employee.last_name}`), 'None']
+            }
+        ]);
+
+        const managerId = answers.manager === 'None' ? null : employees.find(employee => `${employee.first_name} ${employee.last_name}` === answers.manager).id;
+        const employeeId = employees.find(employee => `${employee.first_name} ${employee.last_name}` === answers.employee).id;
+
+        db.query('UPDATE employee SET manager_id = ? WHERE id = ?', [managerId, employeeId], (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\n ${answers.employee}'s manager updated!\n\n Returning to main menu...\n`);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+
 
 
     
