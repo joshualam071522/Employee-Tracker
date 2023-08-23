@@ -38,7 +38,9 @@ const viewAllDepartments = () => {
         if (err) {
             console.log(err);
         }  else {
+            console.log(`\nDisplaying all departments\n`)
             console.table(departments);
+            console.log(`\n\n Returning to main menu...\n`)
             menu();
         }
     });
@@ -50,18 +52,22 @@ const viewAllRoles = () => {
         if (err) {
             console.log(err);
         }  else {
+            console.log(`\nDisplaying all roles\n`)
             console.table(roles);
+            console.log(`\n\n Returning to main menu...\n`)
             menu();
         }
     });
 };
 
 const viewAllEmployees = () => {
-    db.query('SELECT first_name, last_name FROM employee', (err, employees) => {
+    db.query('SELECT * FROM employee', (err, employees) => {
         if (err) {
             console.log(err);
         }  else {
+            console.log(`\nDisplaying all employees\n`)
             console.table(employees);
+            console.log(`\n\n Returning to main menu...\n`)
             menu();
         }
     });
@@ -75,12 +81,12 @@ const addDepartment = () => {
             message: 'What is the name of the department?'
         }
     ])
-    .then((answer) => {
-        db.query('INSERT INTO department (name) VALUES(?)', answer.department, (err, res) => {
+    .then((answers) => {
+        db.query('INSERT INTO department (name) VALUES(?)', answers.department, (err, res) => {
             if (err) {
                 console.log(err);
             } else {
-                console.log('Department added!');
+                console.log(`\n${answers.department} Department added!\n\n Returning to main menu...\n`);
                 menu();
             }
         });
@@ -130,7 +136,7 @@ const addRole = async () => {
             if (err) {
                 console.log(err);
             } else {
-                console.log(`\n ${answers.title} role added!\n\n Returning to main menu...\n`);
+                console.log(`\n${answers.title} role added!\n\n Returning to main menu...\n`);
                 menu();
             }
         });
@@ -239,7 +245,7 @@ const updateEmployeeRole = async () => {
             if (err) {
                 console.log(err);
             } else {
-                console.log(`\n ${answers.employee}'s role updated!\n\n Returning to main menu...\n`);
+                console.log(`\n${answers.employee}'s role updated!\n\n Returning to main menu...\n`);
                 menu();
             }
         });
@@ -304,6 +310,7 @@ const viewEmployeesByManager = async () => {
             } else {
                 console.log(`\nDisplaying ${answers.manager}'s employees:\n`)
                 console.table(res);
+                console.log(`\n\n Returning to main menu...\n`)
                 menu();
             }
         });
@@ -333,6 +340,7 @@ const viewEmployeesByDepartment = async () => {
             } else {
                 console.log(`\nDisplaying ${answers.department}'s employees:\n`)
                 console.table(res);
+                console.log(`\n\n Returning to main menu...\n`)
                 menu();
             }
         });
@@ -340,6 +348,91 @@ const viewEmployeesByDepartment = async () => {
         console.log(err);
     }
 };
+
+const deleteDepartments = async () => {
+    try {
+        const departments = await departmentQuery();
+
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'department',
+                message: `Which department would you like to delete?`,
+                choices: departments.map(department => department.name)
+            }
+        ]);
+
+        const departmentId = departments.find(department => department.name === answers.department).id;
+
+        db.query('DELETE FROM department WHERE id = ?', departmentId, (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\n ${answers.department} deleted!\n\n Returning to main menu...\n`);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+const deleteRoles = async () => {
+    try {
+        const roles = await roleQuery();
+
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'role',
+                message: `Which role would you like to delete?`,
+                choices: roles.map(role => role.title)
+            }
+        ]);
+
+        const roleId = roles.find(role => role.title === answers.role).id;
+
+        db.query('DELETE FROM role WHERE id = ?', roleId, (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\n ${answers.role} deleted!\n\n Returning to main menu...\n`);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+const deleteEmployees = async () => {
+    try {
+        const employees = await employeeQuery();
+
+        const answers = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employee',
+                message: `Which employee would you like to delete?`,
+                choices: employees.map(employee => `${employee.first_name} ${employee.last_name}`)
+            }
+        ]);
+        
+        const employeeId = employees.find(employee => `${employee.first_name} ${employee.last_name}` === answers.employee).id;
+
+        db.query('DELETE FROM employee WHERE id = ?', employeeId, (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`\n ${answers.employee} deleted!\n\n Returning to main menu...\n`);
+                menu();
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
+
     
 function menu() {
     inquirer.prompt(select)
@@ -385,7 +478,8 @@ function menu() {
                 deleteEmployees();
                 break;
             case 'Exit':
-                break;
+                console.log(`\nExiting Menu...\n`);
+                process.exit();
         }
     });
 }
