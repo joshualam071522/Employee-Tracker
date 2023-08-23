@@ -17,56 +17,55 @@ const select = [
         choices: [
             'View all departments',
             'View all roles',
-            'view all employees',
-            'add a department',
-            'add a role',
-            'add an employee',
-            'update an employee role',
-            'update an employee manager',
+            'View all employees',
+            'Add a department',
+            'Add a role',
+            'Add an employee',
+            'Update an employee role',
+            'Update an employee manager',
             'View employees by manager',
-            'view employees by department',
-            'delete departments',
-            'delete roles',
-            'delete employees',
-            'view the total utilized budget of a department',
+            'View employees by department',
+            'Delete departments',
+            'Delete roles',
+            'Delete employees',
             'Exit'
         ]
     }
 ];
 
-// const viewAllDepartments = () => {
-//     db.query('SELECT * FROM department', (err, departments) => {
-//         if (err) {
-//             console.log(err);
-//         }  else {
-//             console.table(departments);
-//             menu();
-//         }
-//     });
-// };
+const viewAllDepartments = () => {
+    db.query('SELECT id, name FROM department', (err, departments) => {
+        if (err) {
+            console.log(err);
+        }  else {
+            console.table(departments);
+            menu();
+        }
+    });
+};
 
-// const viewAllRoles = () => {
-//     db.query('SELECT * FROM role', (err, roles) => {
-//         if (err) {
-//             console.log(err);
-//         }  else {
-//             console.table(roles);
-//             menu();
-//         }
-//     });
-// };
+// add join for department name
+const viewAllRoles = () => {
+    db.query('SELECT title, salary FROM role', (err, roles) => {
+        if (err) {
+            console.log(err);
+        }  else {
+            console.table(roles);
+            menu();
+        }
+    });
+};
 
-
-// const viewAllEmployees = () => {
-//     db.query('SELECT * FROM employee', (err, employees) => {
-//         if (err) {
-//             console.log(err);
-//         }  else {
-//             console.table(employees);
-//             menu();
-//         }
-//     });
-// };
+const viewAllEmployees = () => {
+    db.query('SELECT first_name, last_name FROM employee', (err, employees) => {
+        if (err) {
+            console.log(err);
+        }  else {
+            console.table(employees);
+            menu();
+        }
+    });
+};
 
 const addDepartment = () => {
     inquirer.prompt([
@@ -345,8 +344,49 @@ const viewEmployeesByDepartment = async () => {
 function menu() {
     inquirer.prompt(select)
     .then((answers) => {
-    })
-    .catch((err) => {
-        console.log(err);
+        switch (answers.option) {
+            case 'View all departments':
+                viewAllDepartments();
+                break;
+            case 'View all roles':
+                viewAllRoles();
+                break;
+            case 'View all employees':
+                viewAllEmployees();
+                break;
+            case 'Add a department':
+                addDepartment();
+                break;
+            case 'Add a role':
+                addRole();
+                break;
+            case 'Add an employee':
+                addEmployee();
+                break;
+            case 'Update an employee role':
+                updateEmployeeRole();
+                break;
+            case 'Update an employee manager':
+                updateEmployeeManager();
+                break;
+            case 'View employees by manager':
+                viewEmployeesByManager();
+                break;
+            case 'View employees by department':
+                viewEmployeesByDepartment();
+                break;
+            case 'Delete departments':
+                deleteDepartments();
+                break;
+            case 'Delete roles':
+                deleteRoles();
+                break;
+            case 'Delete employees':
+                deleteEmployees();
+                break;
+            case 'Exit':
+                break;
+        }
     });
 }
+menu();
