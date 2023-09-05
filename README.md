@@ -23,7 +23,6 @@ In order to install this application, the user would have to clone the repositor
 
 To use the application, you must first source the schema file by going into the mysql console. To access it, you must type in the console "mysql -u root -p". From there you type "source db/schema.sql;". You can also source the seed schema if you need example data by typing "source db/seeds.sql;" after. After you are done sourcing, simply quit the mysql console by typing "quit". After that, you can start up the employee menu by typing "node index.js". From there, you can start adding, deleting, editing, and viewing the database. To quit, simply go to the "Exit" option.
 
-To use the application, 
 ## Credits
 
 https://github.com/joshualam071522
